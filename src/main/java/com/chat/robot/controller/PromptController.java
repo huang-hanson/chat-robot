@@ -1,6 +1,7 @@
 package com.chat.robot.controller;
 
 import jakarta.annotation.Resource;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -10,6 +11,8 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +30,8 @@ import java.util.Map;
 @RestController
 public class PromptController {
 
-    //    @Resource(name = "zhiPuAiChatModel")
-    @Resource(name = "deepSeekChatModel")
+    @Resource(name = "zhiPuAiChatModel")
+//    @Resource(name = "deepSeekChatModel")
     private ChatModel chatModel;
 
     @Value("classpath:/prompts/system-message.st")
@@ -85,5 +88,14 @@ public class PromptController {
         Message systemMessage = systemPromptTemplate.createMessage(Map.of("name", name, "voice", voice));
         Prompt prompt = new Prompt(systemMessage);
         return chatModel.call(prompt).getResult();
+    }
+
+    @GetMapping("/prompt/demo5")
+    String demo5() {
+        return ChatClient.create(chatModel).prompt()
+                .user(u -> u.text("解释你在这张图片上看到了什么？")
+                        .media(MimeTypeUtils.IMAGE_PNG, new ClassPathResource("/image/multimodal.png")))
+                .call()
+                .content();
     }
 }
