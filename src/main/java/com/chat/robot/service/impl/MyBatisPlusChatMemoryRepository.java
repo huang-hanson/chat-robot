@@ -9,6 +9,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
  * @ClassName MyBatisPlusChatMemory
  * @date 2025/7/24 11:23
  **/
+@Primary
 @Service
 public class MyBatisPlusChatMemoryRepository implements ChatMemoryRepository {
 

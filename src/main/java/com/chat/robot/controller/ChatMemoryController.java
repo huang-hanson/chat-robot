@@ -1,10 +1,13 @@
 package com.chat.robot.controller;
 
 import com.chat.robot.entity.bo.AiChatMemory;
+import com.chat.robot.entity.bo.Logger;
 import com.chat.robot.service.impl.ChatService;
+import com.chat.robot.service.impl.ChatServiceBySerializer;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +29,9 @@ public class ChatMemoryController {
 
     @Resource
     private ChatService chatService;
+
+    @Resource
+    private ChatServiceBySerializer chatServiceBySerializer;
 
     @Resource(name = "zhiPuAiChatClient")
     private ChatClient chatClient;
@@ -51,5 +57,15 @@ public class ChatMemoryController {
     @GetMapping(value = "/testMysqlChatMemory", produces = "text/html;charset=UTF-8")
     Flux<String> testMysqlChatMemory(@RequestParam String conversationId, @RequestParam String message) {
         return chatService.chat(conversationId, message);
+    }
+
+    @GetMapping(value = "/test/serializer", produces = "text/html;charset=UTF-8")
+    Flux<String> testSerializer(@RequestParam String conversationId, @RequestParam String message) {
+        return chatServiceBySerializer.chat(conversationId, message);
+    }
+
+    @GetMapping("/history/serializer")
+    public List<Message> historyBySerializer(@RequestParam String conversationId) {
+        return chatServiceBySerializer.getHistory(conversationId);
     }
 }

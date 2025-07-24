@@ -1,19 +1,19 @@
 package com.chat.robot.service.impl;
 
 import com.chat.robot.entity.bo.AiChatMemory;
+import com.chat.robot.entity.bo.Logger;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
@@ -28,13 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 @Slf4j
 @Service
-public class ChatService {
+public class ChatServiceBySerializer {
 
     @Resource(name = "zhiPuAiChatClient")
     private ChatClient chatClient;
 
-    @Resource(name = "myBatisPlusChatMemoryRepository")
-    private MyBatisPlusChatMemoryRepository chatMemoryRepository;
+
+    @Resource(name = "serializerMethodChatMemory")
+    private SerializerMethodChatMemory serializerMethodChatMemory;
 
     private final Map<String, ChatMemory> memoryMap = new ConcurrentHashMap<>();
 
@@ -43,7 +44,7 @@ public class ChatService {
         // 添加用户消息
         UserMessage userMessage = new UserMessage(message);
         chatMemory.add(conversationId, userMessage);
-        chatMemoryRepository.saveAll(conversationId, List.of(userMessage));
+        serializerMethodChatMemory.saveAll(conversationId, List.of(userMessage));
 
         // 构建包含上下文的Prompt
         List<Message> messages = chatMemory.get(conversationId);
@@ -67,15 +68,15 @@ public class ChatService {
                                 log.warn("AI Response: {}", output);
                                 AssistantMessage assistantMessage = new AssistantMessage(output);
                                 chatMemory.add(conversationId, assistantMessage);
-                                chatMemoryRepository.saveAll(conversationId, List.of(assistantMessage));
+                                serializerMethodChatMemory.saveAll(conversationId, List.of(assistantMessage));
                             })
                             .subscribeOn(Schedulers.boundedElastic())
                             .subscribe(); // 订阅以触发异步执行
                 });
     }
 
-    public List<AiChatMemory> getHistory(String conversationId) {
-        return chatMemoryRepository.findAiChatMemoryList(conversationId);
+    public List<Message> getHistory(String conversationId) {
+        return serializerMethodChatMemory.findByConversationId(conversationId);
     }
 
     private ChatMemory getMemory(String conversationId) {
