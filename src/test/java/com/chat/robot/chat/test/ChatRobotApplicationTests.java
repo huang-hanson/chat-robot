@@ -1,11 +1,8 @@
-package com.chat.robot;
+package com.chat.robot.chat.test;
 
-import com.chat.robot.chat.ActorsFilms;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ai.chat.messages.Message;

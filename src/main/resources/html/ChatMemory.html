@@ -1,0 +1,23 @@
+<script>
+    const conversationId = "007";  // 固定会话ID或动态生成
+
+    // 1. 初始化 SSE 连接
+    const eventSource = new EventSource(`/api/chat/stream/${conversationId}`);
+
+    eventSource.onmessage = (event) => {
+        console.log("AI Response:", event.data);
+        // 将响应实时渲染到UI（如聊天框）
+        document.getElementById("chat-output").innerHTML += `<div>AI: ${event.data}</div>`;
+    };
+
+    // 2. 发送用户消息
+    function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+        fetch(`/api/chat/send/${conversationId}`, {
+            method: "POST",
+            body: userInput
+        });
+        // 本地渲染用户消息
+        document.getElementById("chat-output").innerHTML += `<div>You: ${userInput}</div>`;
+    }
+</script>

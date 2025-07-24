@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Chat</title>
+</head>
+<body>
+<h2>AI Chat</h2>
+<input type="text" id="message" placeholder="Enter your message">
+<button onclick="sendMessage()">Send</button>
+
+<div id="chatBox"></div>
+
+<script>
+    const conversationId = "007";
+
+    async function sendMessage() {
+        const message = document.getElementById("message").value;
+        if (!message.trim()) return;
+
+        document.getElementById("message").value = '';
+
+        // 启动 SSE
+        const eventSource = new EventSource(`/api/chat/stream?conversationId=${conversationId}&message=${encodeURIComponent(message)}`);
+        let aiResponse = "";
+
+        eventSource.onmessage = async function (event) {
+            aiResponse += event.data;
+
+            // 显示流式响应
+            document.getElementById("chatBox").innerHTML = `
+                <p><strong>You:</strong> ${message}</p>
+                <p><strong>AI (thinking):</strong> ${aiResponse}</p>
+            `;
+        };
+
+        eventSource.onerror = function () {
+            eventSource.close();
+            // 加载历史记录
+            loadHistory();
+        };
+    }
+
+    async function loadHistory() {
+        const response = await fetch(`/api/chat/history?conversationId=${conversationId}`);
+        const history = await response.json();
+
+        const chatBox = document.getElementById("chatBox");
+        chatBox.innerHTML = "";
+
+        for (let line of history) {
+            const [type, ...contentParts] = line.split(": ");
+            const content = contentParts.join(": ");
+            if (type === "USER") {
+                chatBox.innerHTML += `<p><strong>You:</strong> ${content}</p>`;
+            } else if (type === "ASSISTANT") {
+                chatBox.innerHTML += `<p><strong>AI:</strong> ${content}</p>`;
+            }
+        }
+    }
+
+    // 页面加载时加载历史
+    window.onload = loadHistory;
+</script>
+</body>
+</html>
