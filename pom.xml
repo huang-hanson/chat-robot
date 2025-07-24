@@ -92,6 +92,13 @@
             <artifactId>mybatis-plus-jsqlparser</artifactId>
             <version>3.5.12</version> <!-- 确保版本和 MyBatis Plus 主包一致 -->
         </dependency>
+
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
     </dependencies>
 
     <repositories>

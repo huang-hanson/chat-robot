@@ -3,6 +3,7 @@ package com.chat.robot.controller;
 import com.chat.robot.entity.bo.AiChatMemory;
 import com.chat.robot.entity.bo.Logger;
 import com.chat.robot.service.impl.ChatService;
+import com.chat.robot.service.impl.ChatServiceByRedis;
 import com.chat.robot.service.impl.ChatServiceBySerializer;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,9 @@ public class ChatMemoryController {
 
     @Resource
     private ChatServiceBySerializer chatServiceBySerializer;
+
+    @Resource
+    private ChatServiceByRedis chatServiceByRedis;
 
     @Resource(name = "zhiPuAiChatClient")
     private ChatClient chatClient;
@@ -67,5 +71,15 @@ public class ChatMemoryController {
     @GetMapping("/history/serializer")
     public List<Message> historyBySerializer(@RequestParam String conversationId) {
         return chatServiceBySerializer.getHistory(conversationId);
+    }
+
+    @GetMapping(value = "/test/redis", produces = "text/html;charset=UTF-8")
+    Flux<String> testRedis(@RequestParam String conversationId, @RequestParam String message) {
+        return chatServiceByRedis.chat(conversationId, message);
+    }
+
+    @GetMapping("/history/redis")
+    public List<Message> historyByRedis(@RequestParam String conversationId) {
+        return chatServiceByRedis.getHistory(conversationId);
     }
 }
