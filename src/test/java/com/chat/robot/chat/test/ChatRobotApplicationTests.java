@@ -18,7 +18,7 @@ import java.util.Map;
 @SpringBootTest
 class ChatRobotApplicationTests {
 
-    @Resource
+    @Resource(name = "zhiPuAiChatModel")
     private ChatModel chatModel;
 
     @Test
